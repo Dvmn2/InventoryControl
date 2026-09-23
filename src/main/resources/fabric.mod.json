@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "inventorycontrol",
+  "version": "${version}",
+
+  "name": "InventoryControl",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/inventorycontrol/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": ["net.dvmn2.inventorycontrol.client.InventoryControlDataGenerator"],
+    "client": ["net.dvmn2.inventorycontrol.client.InventoryControlClient"],
+    "main": ["net.dvmn2.inventorycontrol.InventoryControl"]
+  },
+
+  "mixins": [
+    "inventorycontrol.mixins.json"
+    ,{
+      "config": "inventorycontrol.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
