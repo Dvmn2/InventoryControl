@@ -1,9 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.dvmn2.inventorycontrol.mixin.client",
+  "package": "net.dvmn2.inventorycontrol.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "HandledScreenMixin",
+    "InGameHudMixin",
+    "PlayerInventoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
