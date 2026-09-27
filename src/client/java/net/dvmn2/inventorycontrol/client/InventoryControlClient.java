@@ -16,7 +16,10 @@ public final class InventoryControlClient implements ClientModInitializer {
         PayloadTypeRegistry.playS2C().register(LockedSlotsPayload.ID, LockedSlotsPayload.CODEC);
 
         ClientPlayNetworking.registerGlobalReceiver(LockedSlotsPayload.ID, (payload, context) ->
-                context.client().execute(() -> LockedSlotsState.setLockedSlots(payload.lockedSlots())));
+                context.client().execute(() -> {
+                    LockedSlotsState.setLockedSlots(payload.lockedSlots());
+                    LockedSlotsState.setCraftingLockedCells(payload.craftingLockedCells());
+                }));
 
         // При отключении от сервера сбрасываем состояние, иначе закрытые слоты
         // "утекут" в одиночную игру или на другой сервер.

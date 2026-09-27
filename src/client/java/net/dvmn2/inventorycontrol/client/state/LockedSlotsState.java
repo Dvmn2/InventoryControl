@@ -6,20 +6,15 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 
 /**
- * Хранит последний полученный от плагина набор закрытых слотов в нумерации
- * {@code PlayerInventory} (она же Bukkit): 0-8 хотбар, 9-35 основной инвентарь,
- * 36-39 броня (36 — ботинки, 39 — шлем), 40 — оффхенд.
- * <p>
- * Слот экрана определяется как {@code slot.inventory instanceof PlayerInventory}
- * + {@code slot.getIndex()}, поэтому перевод в id {@code PlayerScreenHandler}
- * не нужен и закрытые слоты работают в любом экране (инвентарь, сундук, креатив...).
- * <p>
- * Обновляется через {@code client.execute(...)}, так что доступ из рендера безопасен.
+ * Хранит последний полученный от плагина набор закрытых слотов PlayerInventory
+ * и набор заблокированных ячеек личного крафта 2x2 (id 1-5: 1-4 — сетка, 5 — результат).
+ * Обновляется через {@code client.execute(...)}, доступ из рендера безопасен.
  * Это чисто визуальное состояние: авторитетная проверка — на сервере.
  */
 public final class LockedSlotsState {
 
     private static volatile IntSet lockedSlots = new IntOpenHashSet();
+    private static volatile IntSet craftingLockedCells = new IntOpenHashSet();
 
     private LockedSlotsState() {
     }
@@ -28,20 +23,25 @@ public final class LockedSlotsState {
         lockedSlots = new IntOpenHashSet(slots);
     }
 
-    /**
-     * @param inventoryIndex индекс в терминах PlayerInventory
-     */
+    public static void setCraftingLockedCells(int[] cellIds) {
+        craftingLockedCells = new IntOpenHashSet(cellIds);
+    }
+
     public static boolean isLocked(int inventoryIndex) {
         return lockedSlots.contains(inventoryIndex);
     }
 
-    /**
-     * @return true, если слот экрана — закрытый слот инвентаря игрока
-     */
     public static boolean isLockedSlot(Slot slot) {
         return slot != null
                 && slot.inventory instanceof PlayerInventory
                 && lockedSlots.contains(slot.getIndex());
+    }
+
+    /**
+     * @param cellId id ячейки крафта (1-4 — сетка, 5 — результат)
+     */
+    public static boolean isCraftingCellLocked(int cellId) {
+        return craftingLockedCells.contains(cellId);
     }
 
     public static boolean isEmpty() {
@@ -50,5 +50,6 @@ public final class LockedSlotsState {
 
     public static void clear() {
         lockedSlots = new IntOpenHashSet();
+        craftingLockedCells = new IntOpenHashSet();
     }
 }
