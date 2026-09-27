@@ -23,8 +23,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * Отдельно от обычных слотов может быть заблокирован личный крафт 2x2: это 5
  * слотов (результат + 4 ячейки матрицы) верхнего инвентаря экрана {@code InventoryScreen}
  * (личный инвентарь игрока, не верстак — у него другой экран/тип). Эти слоты не
- * принадлежат {@code PlayerInventory}, поэтому проверяются отдельным флагом
- * {@link LockedSlotsState#isCraftingLocked()}.
+ * принадлежат {@code PlayerInventory}, поэтому проверяются отдельно —
+ * {@link LockedSlotsState#isCraftingCellLocked(int)} по id конкретной ячейки.
  * <p>
  * Что делает миксин для заблокированного слота (обычного закрытого или крафта):
  * <ul>

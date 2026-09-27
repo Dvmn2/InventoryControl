@@ -18,6 +18,16 @@ public record LockedSlotsPayload(int[] lockedSlots, int[] craftingLockedCells) i
     public static final CustomPayload.Id<LockedSlotsPayload> ID =
             new CustomPayload.Id<>(Identifier.of("dvmn2", "locked_slots"));
 
+    /**
+     * Реальный максимум — 41 слот PlayerInventory (0-40) и 5 ячеек крафта. Берём
+     * с запасом на будущее расширение формата, но всё равно ограничиваем: без этой
+     * проверки испорченный/вредоносный пакет с огромным VarInt-count уронил бы
+     * клиента через {@code NegativeArraySizeException} или {@code OutOfMemoryError}
+     * ещё до того, как мы успели бы что-то провалидировать по смыслу.
+     */
+    private static final int MAX_LOCKED_SLOTS = 64;
+    private static final int MAX_CRAFTING_CELLS = 16;
+
     public static final PacketCodec<PacketByteBuf, LockedSlotsPayload> CODEC = PacketCodec.of(
             (payload, buf) -> {
                 buf.writeVarInt(payload.lockedSlots().length);
@@ -31,11 +41,19 @@ public record LockedSlotsPayload(int[] lockedSlots, int[] craftingLockedCells) i
             },
             buf -> {
                 int count = buf.readVarInt();
+                if (count < 0 || count > MAX_LOCKED_SLOTS) {
+                    throw new IllegalArgumentException(
+                            "locked_slots: недопустимое количество слотов: " + count);
+                }
                 int[] slots = new int[count];
                 for (int i = 0; i < count; i++) {
                     slots[i] = buf.readVarInt();
                 }
                 int craftCount = buf.readVarInt();
+                if (craftCount < 0 || craftCount > MAX_CRAFTING_CELLS) {
+                    throw new IllegalArgumentException(
+                            "locked_slots: недопустимое количество ячеек крафта: " + craftCount);
+                }
                 int[] craftCells = new int[craftCount];
                 for (int i = 0; i < craftCount; i++) {
                     craftCells[i] = buf.readVarInt();
